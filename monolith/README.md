@@ -12,22 +12,6 @@ Explicación corta para socializar con el equipo:
 
 > El monolítico procesa el CSV de datagramas de forma secuencial y por streaming, sin cargar todo en memoria. Por cada bus guarda la última posición válida, calcula la distancia y tiempo contra la nueva posición, asocia el punto GPS al arco más cercano del grafo y acumula velocidades por arco. Al final genera un CSV con la velocidad promedio por arco y un archivo de métricas para comparar rendimiento.
 
-## Cómo abrirlo en Visual Studio Code
-
-1. Abrir Visual Studio Code.
-2. Seleccionar `File > Open Folder`.
-3. Abrir la carpeta del proyecto:
-
-```text
-C:\Users\melyb\OneDrive\Escritorio\Universidad\Semestre 7\ingesof 4\ProyectoMIO
-```
-
-4. Abrir una terminal en VS Code:
-
-```text
-Terminal > New Terminal
-```
-
 ## Formato de entrada
 
 ### Grafo de arcos CSV
