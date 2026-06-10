@@ -1,0 +1,27 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':SITM-Common')
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+application {
+    mainClass = 'co.edu.icesi.sitmmio.datacenter.distributed.WorkerServer'
+}
+
+tasks.register('runWorker', JavaExec) {
+    group = 'application'
+    description = 'Runs a distributed ICE worker.'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'co.edu.icesi.sitmmio.datacenter.distributed.WorkerServer'
+}
