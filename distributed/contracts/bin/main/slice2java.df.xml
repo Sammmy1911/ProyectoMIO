@@ -1,0 +1,39 @@
+<state>
+  <timestamp value='1781056065357' />
+  <sourceSet name='default'>
+    <source name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\src\main\slice\sitm.ice'>
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\GPSPoint.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\Datagram.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\BusEvent.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\DatagramReceiver.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\MonitoringSubscriber.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\RealTimeStreaming.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\ArchiveService.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\SpeedReport.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\QueryProvider.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\WorkChunk.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\TaskResult.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\TaskDispatcher.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\Master.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\BusEventSeqHelper.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\SpeedReportSeqHelper.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\DatagramReceiverPrx.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\_DatagramReceiverPrxI.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\MonitoringSubscriberPrx.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\_MonitoringSubscriberPrxI.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\RealTimeStreamingPrx.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\_RealTimeStreamingPrxI.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\ArchiveServicePrx.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\_ArchiveServicePrxI.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\QueryProviderPrx.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\_QueryProviderPrxI.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\TaskDispatcherPrx.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\_TaskDispatcherPrxI.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\MasterPrx.java' />
+      <file name='C:\Users\sgall\Desktop\finnnn\ProyectoMIO\distributed\contracts\build\generated-src\SITMMIO\_MasterPrxI.java' />
+    </source>
+    <arg value='C:\Program Files\ZeroC\Ice-3.7.10\\bin\slice2java.exe' />
+    <arg value='-IC:\Program Files\ZeroC\Ice-3.7.10\\slice' />
+    <arg value='--underscore' />
+  </sourceSet>
+</state>

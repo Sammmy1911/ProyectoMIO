@@ -1,0 +1,13 @@
+plugins {
+    id 'com.zeroc.gradle.ice-builder.slice'
+}
+
+slice {
+    java {
+        args = '--underscore'
+    }
+}
+
+dependencies {
+    implementation 'com.zeroc:ice:3.7.10'
+}

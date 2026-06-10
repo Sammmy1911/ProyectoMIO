@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+    id 'com.zeroc.gradle.ice-builder.slice' version '1.5.0' apply false
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(11)
+        }
+    }
+
+    dependencies {
+        implementation 'com.zeroc:ice:3.7.10'
+    }
+}

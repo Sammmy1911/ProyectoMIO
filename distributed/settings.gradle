@@ -1,0 +1,7 @@
+rootProject.name = 'sitm-mio-distributed'
+include 'contracts'
+include 'bus-simulator'
+include 'event-processor'
+include 'data-center'
+include 'worker-node'
+include 'visualizer-client'
