@@ -13,27 +13,52 @@ import com.zeroc.Ice.ObjectAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventProcessor implements DatagramReceiver, RealTimeStreaming {
+public class EventProcessor {
     private final List<MonitoringSubscriberPrx> subscribers = new ArrayList<>();
+    private SITMMIO.ArchiveServicePrx archiver;
+    private int counter = 0;
 
-    @Override
-    public void receiveDatagram(Datagram data, Current current) {
-        // Normalización de coordenadas
-        // Ej: 34761183 -> 3.4761 (Si el factor es 10^7 o similar según el PDF/Requirements)
-        // Según Requirements.md: 34761183 -> 3.4761, lo que implica dividir por 10,000,000 (10^7)
-        // Sin embargo, trabajaremos con los valores normalizados si el cliente lo requiere, 
-        // o los pasaremos tal cual para que el visualizador los convierta.
-        
-        System.out.println("Received datagram from Bus ID: " + data.busId + " Line: " + data.lineId);
-        
-        BusEvent event = new BusEvent();
-        event.busId = data.busId;
-        event.latitude = data.latitude;
-        event.longitude = data.longitude;
-        event.eventType = data.eventType;
-        event.timestamp = data.datagramDate;
+    public EventProcessor(SITMMIO.ArchiveServicePrx archiver) {
+        this.archiver = archiver;
+    }
 
-        notifySubscribers(event);
+    // Servant para recibir Datagramas (del Simulador)
+    class DatagramReceiverI implements DatagramReceiver {
+        @Override
+        public void receiveDatagram(Datagram data, Current current) {
+            counter++;
+            if (counter % 100 == 0) {
+                System.out.println("Processed 100 datagrams. Last Bus ID: " + data.busId);
+            }
+            
+            if (archiver != null) {
+                archiver.archiveAsync(data);
+            }
+
+            BusEvent event = new BusEvent();
+            event.busId = data.busId;
+            event.latitude = data.latitude;
+            event.longitude = data.longitude;
+            event.eventType = data.eventType;
+            event.timestamp = data.datagramDate;
+
+            notifySubscribers(event);
+        }
+    }
+
+    // Servant para el Streaming en Tiempo Real (para el Visualizador)
+    class RealTimeStreamingI implements RealTimeStreaming {
+        @Override
+        public synchronized void subscribe(MonitoringSubscriberPrx sub, Current current) {
+            subscribers.add(sub);
+            System.out.println("New subscriber added.");
+        }
+
+        @Override
+        public synchronized void unsubscribe(MonitoringSubscriberPrx sub, Current current) {
+            subscribers.remove(sub);
+            System.out.println("Subscriber removed.");
+        }
     }
 
     private synchronized void notifySubscribers(BusEvent event) {
@@ -47,28 +72,17 @@ public class EventProcessor implements DatagramReceiver, RealTimeStreaming {
         });
     }
 
-    @Override
-    public synchronized void subscribe(MonitoringSubscriberPrx sub, Current current) {
-        subscribers.add(sub);
-        System.out.println("New subscriber added.");
-    }
-
-    @Override
-    public synchronized void unsubscribe(MonitoringSubscriberPrx sub, Current current) {
-        subscribers.remove(sub);
-        System.out.println("Subscriber removed.");
-    }
-
     public static void main(String[] args) {
-        InitializationData initData = new InitializationData();
-        initData.properties = Util.createProperties(args);
-        initData.properties.load("config.properties");
-
-        try (Communicator communicator = Util.initialize(initData)) {
+        try (Communicator communicator = Util.initialize(args, "config.properties")) {
+            SITMMIO.ArchiveServicePrx archiver = SITMMIO.ArchiveServicePrx.checkedCast(
+                    communicator.propertyToProxy("ArchiveService.Proxy"));
+            
             ObjectAdapter adapter = communicator.createObjectAdapter("EventProcessorAdapter");
-            EventProcessor processor = new EventProcessor();
-            adapter.add(processor, Util.stringToIdentity("DatagramReceiver"));
-            adapter.add(processor, Util.stringToIdentity("RealTimeStreaming"));
+            EventProcessor instance = new EventProcessor(archiver);
+            
+            adapter.add(instance.new DatagramReceiverI(), Util.stringToIdentity("DatagramReceiver"));
+            adapter.add(instance.new RealTimeStreamingI(), Util.stringToIdentity("RealTimeStreaming"));
+            
             adapter.activate();
             System.out.println("Event Processor active and listening on port 10000...");
             communicator.waitForShutdown();

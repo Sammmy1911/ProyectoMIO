@@ -21,4 +21,27 @@ subprojects {
     dependencies {
         implementation 'com.zeroc:ice:3.7.10'
     }
+
+    // Configuración específica para proyectos que son aplicaciones
+    if (project.name != 'contracts') {
+        apply plugin: 'application'
+        
+        dependencies {
+            implementation project(':contracts')
+        }
+
+        application {
+            if (project.name == 'bus-simulator') {
+                mainClass = 'sim.BusSimulator'
+            } else if (project.name == 'event-processor') {
+                mainClass = 'processor.EventProcessor'
+            } else if (project.name == 'data-center') {
+                mainClass = 'center.DataCenterMaster'
+            } else if (project.name == 'worker-node') {
+                mainClass = 'worker.WorkerNode'
+            } else if (project.name == 'visualizer-client') {
+                mainClass = 'visualizer.VisualizerClient'
+            }
+        }
+    }
 }

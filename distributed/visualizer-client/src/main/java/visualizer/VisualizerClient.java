@@ -2,6 +2,7 @@ package visualizer;
 
 import SITMMIO.BusEvent;
 import SITMMIO.MonitoringSubscriber;
+import SITMMIO.MonitoringSubscriberPrx;
 import SITMMIO.RealTimeStreamingPrx;
 import SITMMIO.QueryProviderPrx;
 import SITMMIO.SpeedReport;
@@ -15,11 +16,7 @@ public class VisualizerClient implements MonitoringSubscriber {
     }
 
     public static void main(String[] args) {
-        InitializationData initData = new InitializationData();
-        initData.properties = Util.createProperties(args);
-        initData.properties.load("config.properties");
-
-        try (Communicator communicator = Util.initialize(initData)) {
+        try (Communicator communicator = Util.initialize(args, "config.properties")) {
             // Subscribe to real-time events
             RealTimeStreamingPrx streaming = RealTimeStreamingPrx.checkedCast(
                     communicator.propertyToProxy("RealTimeStreaming.Proxy"));

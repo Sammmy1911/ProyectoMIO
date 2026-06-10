@@ -78,5 +78,6 @@ module SITMMIO {
 
     interface Master {
         void reportResult(TaskResult result);
+        void registerWorker(TaskDispatcher* worker);
     };
 };

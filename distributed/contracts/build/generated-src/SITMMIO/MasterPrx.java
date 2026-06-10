@@ -53,6 +53,42 @@ public interface MasterPrx extends com.zeroc.Ice.ObjectPrx
         return f;
     }
 
+    default void registerWorker(TaskDispatcherPrx worker)
+    {
+        registerWorker(worker, com.zeroc.Ice.ObjectPrx.noExplicitContext);
+    }
+
+    default void registerWorker(TaskDispatcherPrx worker, java.util.Map<String, String> context)
+    {
+        _iceI_registerWorkerAsync(worker, context, true).waitForResponse();
+    }
+
+    default java.util.concurrent.CompletableFuture<Void> registerWorkerAsync(TaskDispatcherPrx worker)
+    {
+        return _iceI_registerWorkerAsync(worker, com.zeroc.Ice.ObjectPrx.noExplicitContext, false);
+    }
+
+    default java.util.concurrent.CompletableFuture<Void> registerWorkerAsync(TaskDispatcherPrx worker, java.util.Map<String, String> context)
+    {
+        return _iceI_registerWorkerAsync(worker, context, false);
+    }
+
+    /**
+     * @hidden
+     * @param iceP_worker -
+     * @param context -
+     * @param sync -
+     * @return -
+     **/
+    default com.zeroc.IceInternal.OutgoingAsync<Void> _iceI_registerWorkerAsync(TaskDispatcherPrx iceP_worker, java.util.Map<String, String> context, boolean sync)
+    {
+        com.zeroc.IceInternal.OutgoingAsync<Void> f = new com.zeroc.IceInternal.OutgoingAsync<>(this, "registerWorker", null, sync, null);
+        f.invoke(false, context, null, ostr -> {
+                     ostr.writeProxy(iceP_worker);
+                 }, null);
+        return f;
+    }
+
     /**
      * Contacts the remote server to verify that the object implements this type.
      * Raises a local exception if a communication error occurs.

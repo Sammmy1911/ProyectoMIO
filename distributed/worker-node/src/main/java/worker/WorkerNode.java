@@ -7,8 +7,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class WorkerNode implements TaskDispatcher {
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(4);
+    private final ExecutorService threadPool = Executors.newFixedThreadPool(32);
     private MasterPrx master;
+    private int taskCounter = 0;
 
     public WorkerNode(MasterPrx master) {
         this.master = master;
@@ -16,27 +17,22 @@ public class WorkerNode implements TaskDispatcher {
 
     @Override
     public void dispatchTask(WorkChunk chunk, Current current) {
-        System.out.println("Received WorkChunk: " + chunk.taskId + " for Line: " + chunk.lineId);
+        taskCounter++;
+        if (taskCounter % 10000 == 0) {
+            System.out.println("Worker has processed " + taskCounter + " tasks so far...");
+        }
         threadPool.submit(() -> {
-            // Simulación de cálculo pesado
-            double speed = Math.random() * 40 + 10; // Velocidad aleatoria entre 10 y 50 km/h
+            double speed = Math.random() * 40 + 10;
             try {
-                Thread.sleep(2000); // Simular tiempo de procesamiento
                 TaskResult result = new TaskResult(chunk.taskId, speed, 1000);
-                master.reportResult(result);
-                System.out.println("Task " + chunk.taskId + " completed and reported.");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                master.reportResultAsync(result);
+            } catch (java.lang.Exception e) {
             }
         });
     }
 
     public static void main(String[] args) {
-        InitializationData initData = new InitializationData();
-        initData.properties = Util.createProperties(args);
-        initData.properties.load("config.properties");
-
-        try (Communicator communicator = Util.initialize(initData)) {
+        try (Communicator communicator = Util.initialize(args, "config.properties")) {
             MasterPrx master = MasterPrx.checkedCast(
                     communicator.propertyToProxy("Master.Proxy"));
             
@@ -44,10 +40,16 @@ public class WorkerNode implements TaskDispatcher {
 
             ObjectAdapter adapter = communicator.createObjectAdapter("WorkerAdapter");
             WorkerNode worker = new WorkerNode(master);
-            adapter.add(worker, Util.stringToIdentity("TaskDispatcher"));
+            
+            TaskDispatcherPrx workerPrx = TaskDispatcherPrx.uncheckedCast(
+                    adapter.add(worker, Util.stringToIdentity("TaskDispatcher")));
+            
             adapter.activate();
             
-            System.out.println("Worker Node active and connected to Master...");
+            // Registro dinámico con el Master
+            master.registerWorker(workerPrx);
+            System.out.println("Worker Node active and registered with Master.");
+            
             communicator.waitForShutdown();
         }
     }

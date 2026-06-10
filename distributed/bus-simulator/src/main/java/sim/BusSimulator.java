@@ -11,11 +11,7 @@ import java.io.IOException;
 
 public class BusSimulator {
     public static void main(String[] args) {
-        InitializationData initData = new InitializationData();
-        initData.properties = Util.createProperties(args);
-        initData.properties.load("config.properties");
-
-        try (Communicator communicator = Util.initialize(initData)) {
+        try (Communicator communicator = Util.initialize(args, "config.properties")) {
             DatagramReceiverPrx receiver = DatagramReceiverPrx.checkedCast(
                     communicator.propertyToProxy("DatagramReceiver.Proxy"));
             
@@ -23,7 +19,7 @@ public class BusSimulator {
                 throw new Error("Invalid proxy");
             }
 
-            String csvFile = "../doc/BaseData/datagrams-MiniPilot.csv";
+            String csvFile = "../busData/datagrams-MiniPilot.csv";
             String line;
             String cvsSplitBy = ",";
 
@@ -47,10 +43,8 @@ public class BusSimulator {
                     datagram.datagramDate = data[10];
                     datagram.busId = Integer.parseInt(data[11]);
 
-                    receiver.receiveDatagram(datagram);
-                    
-                    // Simulating real-time by adding a small delay if needed
-                    // Thread.sleep(10); 
+                    // Enviar de forma asíncrona para máxima velocidad
+                    receiver.receiveDatagramAsync(datagram);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
