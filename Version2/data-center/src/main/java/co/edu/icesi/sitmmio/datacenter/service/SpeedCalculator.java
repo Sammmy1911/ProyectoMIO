@@ -1,6 +1,7 @@
 package co.edu.icesi.sitmmio.datacenter.service;
 
 import co.edu.icesi.sitmmio.datacenter.model.BusEvent;
+import co.edu.icesi.sitmmio.datacenter.model.ProcessingResult;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -16,11 +17,18 @@ public class SpeedCalculator {
     private static final int IDX_DATAGRAM_DATE = 10;
     private static final int IDX_BUS_ID        = 11;
 
+    private SITMObserver observer;
+    private long notifyCounter = 0;
+
+    public void setObserver(SITMObserver observer) {
+        this.observer = observer;
+    }
+
     /**
-     * Versión 2.1 – Optimizada (Parsing Paralelo).
-     * Recibe líneas crudas para que el parsing ocurra en paralelo.
+     * Versión 2.2 – Dual (Mensual + Tramos).
+     * Recibe líneas crudas, parsea en paralelo y calcula ambos reportes.
      */
-    public Map<String, double[]> processRawChunk(List<String> rawLines, Set<Integer> activeLineIds) {
+    public ProcessingResult processRawChunk(List<String> rawLines, Set<Integer> activeLineIds) {
         List<BusEvent> events = new ArrayList<>(rawLines.size());
 
         for (String line : rawLines) {
@@ -30,56 +38,62 @@ public class SpeedCalculator {
             }
         }
 
-        // agrupar trayectorias dentro del chunk (busId + tripId)
         Map<String, List<BusEvent>> trajectories = new HashMap<>();
         for (BusEvent e : events) {
             String key = e.getBusId() + "_" + e.getTripId();
             trajectories.computeIfAbsent(key, k -> new ArrayList<>()).add(e);
         }
 
-        Map<String, double[]> partial = new HashMap<>();
+        Map<String, double[]> partialMonthly = new HashMap<>();
+        Map<String, double[]> partialArcs = new HashMap<>();
 
         for (List<BusEvent> trajectory : trajectories.values()) {
+            // ORDENAMOS: Esto es clave para que no salten de atrás hacia adelante
             trajectory.sort(Comparator.comparing(BusEvent::getDatagramDate));
 
-            for (int i = 1; i < trajectory.size(); i++) {
-                BusEvent prev = trajectory.get(i - 1);
+            for (int i = 0; i < trajectory.size(); i++) {
                 BusEvent curr = trajectory.get(i);
+                
+                // Notificar al visualizador CADA PUNTO de la trayectoria ordenada
+                // El visualizador se encargará de filtrar por LineId si el usuario lo pide
+                if (observer != null && ++notifyCounter % 500 == 0) { // Muestreo más fino (1 de cada 500)
+                    long epoch = curr.getDatagramDate().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
+                    observer.onBusMoved(curr.getBusId(), curr.getLatitude(), curr.getLongitude(), curr.getLineId(), epoch);
+                }
 
-                double distKm = haversine(
-                        prev.getLatitude(), prev.getLongitude(),
-                        curr.getLatitude(), curr.getLongitude());
+                if (i == 0) continue;
+                BusEvent prev = trajectory.get(i - 1);
 
-                double hours = Duration.between(
-                        prev.getDatagramDate(),
-                        curr.getDatagramDate()).toSeconds() / 3600.0;
+                double distKm = haversine(prev.getLatitude(), prev.getLongitude(), curr.getLatitude(), curr.getLongitude());
+                double hours = Duration.between(prev.getDatagramDate(), curr.getDatagramDate()).toSeconds() / 3600.0;
 
-                if (hours <= 0)           continue;
-                if (distKm <= 0)          continue;
-                if (distKm > 1.0)         continue;
-                if (distKm / hours > 120) continue;
-
-                String key = curr.getLineId() + "_"
-                        + curr.getDatagramDate().getMonth().getValue() + "_"
-                        + curr.getDatagramDate().getYear();
+                if (hours <= 0 || distKm <= 0 || distKm > 1.0 || (distKm / hours) > 120) continue;
 
                 double speed = distKm / hours;
-                partial.computeIfAbsent(key, k -> new double[]{0.0, 0.0});
-                partial.get(key)[0] += speed;  // suma
-                partial.get(key)[1] += 1;      // conteo
+
+                // 1. Acumular para reporte MENSUAL
+                String monthKey = curr.getLineId() + "_" + curr.getDatagramDate().getMonthValue() + "_" + curr.getDatagramDate().getYear();
+                accumulate(partialMonthly, monthKey, speed);
+
+                // 2. Acumular para reporte de TRAMOS (Arcos)
+                if (prev.getStopId() != curr.getStopId()) {
+                    String arcKey = curr.getLineId() + "_" + prev.getStopId() + "_" + curr.getStopId();
+                    accumulate(partialArcs, arcKey, speed);
+                }
             }
         }
+        return new ProcessingResult(partialMonthly, partialArcs);
+    }
 
-        return partial;
+    private void accumulate(Map<String, double[]> map, String key, double speed) {
+        map.computeIfAbsent(key, k -> new double[]{0.0, 0.0});
+        map.get(key)[0] += speed;
+        map.get(key)[1] += 1;
     }
 
     private BusEvent parseLine(String line, Set<Integer> activeLineIds) {
         try {
-            // OPTIMIZACIÓN EXTREMA: No usar split() ni substring()
-            // Buscamos las comas manualmente para evitar crear 12 Strings por línea
             int len = line.length();
-            
-            // Índices de las columnas que necesitamos
             int stopId = 0, rawLat = 0, rawLon = 0, lineId = 0, tripId = 0, busId = 0;
             String dateStr = null;
 
@@ -103,24 +117,21 @@ public class SpeedCalculator {
                     } else if (column == IDX_STOP_ID) {
                         stopId = fastInt(line, start, i);
                     } else if (column == IDX_DATAGRAM_DATE) {
-                        dateStr = line.substring(start, i); // Único substring necesario
+                        dateStr = line.substring(start, i);
                     }
                     start = i + 1;
                     column++;
                 }
             }
-
             double latitude  = rawLat / 1e7;
             double longitude = rawLon / 1e7;
             LocalDateTime date = fastParseDate(dateStr);
-
             return new BusEvent(busId, lineId, tripId, stopId, latitude, longitude, date);
         } catch (Exception e) {
             return null;
         }
     }
 
-    // Parsea un entero sin crear un String intermedio
     private int fastInt(String s, int start, int end) {
         int res = 0;
         int i = start;
@@ -136,7 +147,6 @@ public class SpeedCalculator {
     }
 
     private LocalDateTime fastParseDate(String s) {
-        // "yyyy-MM-dd HH:mm:ss" - No usar substring, usar charAt
         int year   = (s.charAt(0)-'0')*1000 + (s.charAt(1)-'0')*100 + (s.charAt(2)-'0')*10 + (s.charAt(3)-'0');
         int month  = (s.charAt(5)-'0')*10 + (s.charAt(6)-'0');
         int day    = (s.charAt(8)-'0')*10 + (s.charAt(9)-'0');
@@ -145,8 +155,6 @@ public class SpeedCalculator {
         int second = (s.charAt(17)-'0')*10 + (s.charAt(18)-'0');
         return LocalDateTime.of(year, month, day, hour, minute, second);
     }
-
-    // ── utilidad ──────────────────────────────────────────────────────────────
 
     private double haversine(double lat1, double lon1, double lat2, double lon2) {
         final double R = 6371.0;

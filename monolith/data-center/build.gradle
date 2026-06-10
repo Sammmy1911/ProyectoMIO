@@ -6,10 +6,6 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    implementation 'org.jxmapviewer:jxmapviewer2:2.8'
-}
-
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
