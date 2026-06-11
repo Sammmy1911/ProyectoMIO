@@ -136,7 +136,8 @@ public class MasterMain implements SITMMaster {
         id.properties.setProperty("Ice.Default.Timeout", "60000");
 
         try (Communicator c = Util.initialize(id)) {
-            ObjectAdapter a = c.createObjectAdapterWithEndpoints("MasterAdapter", "default -p 10000");
+            String masterPort = id.properties.getPropertyWithDefault("Master.Port", "10000");
+            ObjectAdapter a = c.createObjectAdapterWithEndpoints("MasterAdapter", "default -p " + masterPort);
             MasterMain m = new MasterMain();
             
             // 1. Cargar desde propiedades (archivo)

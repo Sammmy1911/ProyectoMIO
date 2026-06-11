@@ -11,5 +11,9 @@ dependencies {
     api 'com.zeroc:ice:3.7.10'
 }
 
+slice {
+    iceHome = file('C:/Program Files/ZeroC/Ice-3.7.10')
+}
+
 // El plugin busca automáticamente en src/main/slice
 // y genera el código en build/generated-src/slice/java

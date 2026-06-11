@@ -1,0 +1,4 @@
+Master.Host=10.147.17.117
+Master.Port=10000
+Csv.Path=datagrams.csv
+Lines.Path=lines-active.csv

@@ -27,16 +27,20 @@ public class VisualizerMain {
 
         try (Communicator c = Util.initialize(id)) {
             String masterHost = id.properties.getPropertyWithDefault("Master.Host", "localhost");
+            String masterPort = id.properties.getPropertyWithDefault("Master.Port", "10000");
+            String observerPort = id.properties.getPropertyWithDefault("Observer.Port", "10002");
             if (args.length > 0) masterHost = args[0];
+            if (args.length > 1) masterPort = args[1];
+            if (args.length > 2) observerPort = args[2];
 
-            masterProxy = SITMMasterPrx.checkedCast(c.stringToProxy("DataCenter:default -h " + masterHost + " -p 10000"));
+            masterProxy = SITMMasterPrx.checkedCast(c.stringToProxy("DataCenter:default -h " + masterHost + " -p " + masterPort));
             if (masterProxy == null) return;
 
             BusModel model = new BusModel();
             MapVisualizer view = new MapVisualizer(model);
             VisualizerController controller = new VisualizerController(model, VisualizerMain::showPerformanceBox);
 
-            ObjectAdapter a = c.createObjectAdapterWithEndpoints("ObserverAdapter", "default");
+            ObjectAdapter a = c.createObjectAdapterWithEndpoints("ObserverAdapter", "default -p " + observerPort);
             a.add(controller, Util.stringToIdentity("Visualizer"));
             a.activate();
 

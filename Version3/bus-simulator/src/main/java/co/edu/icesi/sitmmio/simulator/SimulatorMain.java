@@ -25,15 +25,17 @@ public class SimulatorMain {
 
         try (Communicator communicator = Util.initialize(id)) {
             String masterHost = id.properties.getPropertyWithDefault("Master.Host", "localhost");
+            String masterPort = id.properties.getPropertyWithDefault("Master.Port", "10000");
             String csvPath = id.properties.getPropertyWithDefault("Csv.Path", "datagrams.csv");
             String linesPath = id.properties.getPropertyWithDefault("Lines.Path", "lines-active.csv");
 
             if (args.length >= 1) csvPath = args[0];
             if (args.length >= 2) linesPath = args[1];
             if (args.length >= 3) masterHost = args[2];
+            if (args.length >= 4) masterPort = args[3];
 
             SITMMasterPrx master = SITMMasterPrx.checkedCast(
-                communicator.stringToProxy("DataCenter:default -h " + masterHost + " -p 10000")
+                communicator.stringToProxy("DataCenter:default -h " + masterHost + " -p " + masterPort)
             );
 
             if (master == null) {
