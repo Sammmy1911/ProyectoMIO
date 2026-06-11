@@ -1,0 +1,28 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':common')
+}
+
+application {
+    mainClass = 'co.edu.icesi.sitmmio.simulator.SimulatorMain'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'co.edu.icesi.sitmmio.simulator.SimulatorMain'
+    }
+    dependsOn ':common:jar'
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

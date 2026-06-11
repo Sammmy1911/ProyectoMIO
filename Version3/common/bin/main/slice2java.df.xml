@@ -1,0 +1,23 @@
+<state>
+  <timestamp value='1781147854643' />
+  <sourceSet name='default'>
+    <source name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\src\main\slice\SITM.ice'>
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\BusEvent.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\ProcessingResult.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\PerformanceMetrics.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\SITMObserver.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\Worker.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\SITMMaster.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\MonthlyDataHelper.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\SampleCountHelper.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\SITMObserverPrx.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\_SITMObserverPrxI.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\WorkerPrx.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\_WorkerPrxI.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\SITMMasterPrx.java' />
+      <file name='D:\u\New folder\PROYECTO\proyecto\distribucion\proyecto\v2\common\build\generated-src\co\edu\uicesi\sitmmio\datacenter\_SITMMasterPrxI.java' />
+    </source>
+    <arg value='C:\Program Files\ZeroC\Ice-3.7.10\\bin\slice2java.exe' />
+    <arg value='-IC:\Program Files\ZeroC\Ice-3.7.10\\slice' />
+  </sourceSet>
+</state>

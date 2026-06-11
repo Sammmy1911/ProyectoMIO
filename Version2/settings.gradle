@@ -1,2 +1,0 @@
-rootProject.name = 'sitm-mio'
-include('SITM-Common', 'SITM-Master', 'SITM-Worker')

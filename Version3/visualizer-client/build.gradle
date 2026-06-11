@@ -1,0 +1,29 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':common')
+    implementation 'org.jxmapviewer:jxmapviewer2:2.8'
+}
+
+application {
+    mainClass = 'co.edu.icesi.sitmmio.visualizer.VisualizerMain'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'co.edu.icesi.sitmmio.visualizer.VisualizerMain'
+    }
+    dependsOn ':common:jar'
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
