@@ -50,9 +50,8 @@ public class Main {
 
         List<Future<ProcessingResult>> futures = new ArrayList<>();
 
-        // ── Reduce: Consolidar ambos mapas ────────────────────────────────────
-        Map<String, double[]> monthlyAccumulated = new HashMap<>();
-        Map<String, double[]> arcAccumulated = new HashMap<>();
+        // ── Reduce: Consolidar mapa único ─────────────────────────────────────
+        Map<String, double[]> accumulated = new HashMap<>();
 
         long totalLines = 0;
         int activeTasks = 0;
@@ -64,30 +63,25 @@ public class Main {
                 if (!rawChunk.isEmpty()) {
                     totalLines += rawChunk.size();
                     futures.add(pool.submit(() -> calculator.processRawChunk(rawChunk, activeLines)));
-                    if (totalLines % 10_000_000 == 0) { // Log cada 10M para no frenar
+                    if (totalLines % 10_000_000 == 0) {
                         System.out.println("-> Progreso: " + (totalLines / 1_000_000) + "M líneas...");
                     }
-                    // LIMITADOR DESACTIVADO PARA EXPERIMENTOS
-                    // Thread.sleep(50); 
                 }
             }
 
             // 2. Consolidar tareas que ya terminaron (Streaming Reduce)
-            // Esto es lo que mantiene la RAM baja
             Iterator<Future<ProcessingResult>> it = futures.iterator();
             while (it.hasNext()) {
                 Future<ProcessingResult> f = it.next();
                 if (f.isDone()) {
                     try {
                         ProcessingResult res = f.get();
-                        mergeMaps(monthlyAccumulated, res.monthlyAverages);
-                        mergeMaps(arcAccumulated, res.arcAverages);
-                        it.remove(); // Liberamos la memoria del resultado procesado
+                        mergeMaps(accumulated, res.averages);
+                        it.remove(); 
                     } catch (Exception e) { e.printStackTrace(); }
                 }
             }
             
-            // Pequeño respiro para la CPU si no hay nada que leer ni nada que procesar
             if (loader.isFinished() && !futures.isEmpty()) {
                 Thread.sleep(10);
             }
@@ -99,12 +93,19 @@ public class Main {
         long totalTimeMs = tEnd - t0;
         double totalTimeSec = totalTimeMs / 1000.0;
         
-        // ── Generar Reportes CSV ──────────────────────────────────────────────
+        // ── Generar Reporte Unificado (Ruta-Mes-Año) ─────────────────────────
         String inputBase = new java.io.File(csvPath).getName().replace(".csv", "");
-        saveReport("reporte_" + inputBase + "_mensual.csv", "lineId_mes_año,velocidad_kmh,muestras", monthlyAccumulated);
-        saveReport("reporte_" + inputBase + "_tramos.csv", "lineId_paradaOrigen_paradaDestino,velocidad_kmh,muestras", arcAccumulated);
+        String reportName = "reporte_" + inputBase + "_final.csv";
+        
+        try (PrintWriter pw = new PrintWriter(new File(reportName))) {
+            pw.println("lineId_mes_año,velocidad_kmh,muestras");
+            for (Map.Entry<String, double[]> entry : accumulated.entrySet()) {
+                double avg = entry.getValue()[0] / entry.getValue()[1];
+                pw.printf("%s,%.2f,%.0f%n", entry.getKey(), avg, entry.getValue()[1]);
+            }
+        }
 
-        System.out.println("\n[OK] Reportes guardados con éxito.");
+        System.out.println("\n[OK] Reporte final (Ruta-Mes) guardado en: " + reportName);
 
         // ── Resumen de Rendimiento ────────────────────────────────────────────
         long minutes = (totalTimeMs / 1000) / 60;

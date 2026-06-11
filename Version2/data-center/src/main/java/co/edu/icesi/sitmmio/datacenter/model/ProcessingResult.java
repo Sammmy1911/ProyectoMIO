@@ -7,11 +7,9 @@ import java.util.Map;
  * Ideal para que el compañero del distribuido lo use como DTO.
  */
 public class ProcessingResult {
-    public final Map<String, double[]> monthlyAverages;
-    public final Map<String, double[]> arcAverages;
+    public final Map<String, double[]> averages;
 
-    public ProcessingResult(Map<String, double[]> monthly, Map<String, double[]> arcs) {
-        this.monthlyAverages = monthly;
-        this.arcAverages = arcs;
+    public ProcessingResult(Map<String, double[]> averages) {
+        this.averages = averages;
     }
 }

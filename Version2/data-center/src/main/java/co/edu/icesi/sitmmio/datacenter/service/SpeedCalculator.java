@@ -44,8 +44,7 @@ public class SpeedCalculator {
             trajectories.computeIfAbsent(key, k -> new ArrayList<>()).add(e);
         }
 
-        Map<String, double[]> partialMonthly = new HashMap<>();
-        Map<String, double[]> partialArcs = new HashMap<>();
+        Map<String, double[]> partialAverages = new HashMap<>();
 
         for (List<BusEvent> trajectory : trajectories.values()) {
             // ORDENAMOS: Esto es clave para que no salten de atrás hacia adelante
@@ -55,8 +54,7 @@ public class SpeedCalculator {
                 BusEvent curr = trajectory.get(i);
                 
                 // Notificar al visualizador CADA PUNTO de la trayectoria ordenada
-                // El visualizador se encargará de filtrar por LineId si el usuario lo pide
-                if (observer != null && ++notifyCounter % 500 == 0) { // Muestreo más fino (1 de cada 500)
+                if (observer != null && ++notifyCounter % 500 == 0) { 
                     long epoch = curr.getDatagramDate().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
                     observer.onBusMoved(curr.getBusId(), curr.getLatitude(), curr.getLongitude(), curr.getLineId(), epoch);
                 }
@@ -71,18 +69,12 @@ public class SpeedCalculator {
 
                 double speed = distKm / hours;
 
-                // 1. Acumular para reporte MENSUAL
-                String monthKey = curr.getLineId() + "_" + curr.getDatagramDate().getMonthValue() + "_" + curr.getDatagramDate().getYear();
-                accumulate(partialMonthly, monthKey, speed);
-
-                // 2. Acumular para reporte de TRAMOS (Arcos)
-                if (prev.getStopId() != curr.getStopId()) {
-                    String arcKey = curr.getLineId() + "_" + prev.getStopId() + "_" + curr.getStopId();
-                    accumulate(partialArcs, arcKey, speed);
-                }
+                // Acumular para reporte ÚNICO (LineId + Mes + Año)
+                String key = curr.getLineId() + "_" + curr.getDatagramDate().getMonthValue() + "_" + curr.getDatagramDate().getYear();
+                accumulate(partialAverages, key, speed);
             }
         }
-        return new ProcessingResult(partialMonthly, partialArcs);
+        return new ProcessingResult(partialAverages);
     }
 
     private void accumulate(Map<String, double[]> map, String key, double speed) {
