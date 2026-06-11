@@ -8,11 +8,19 @@ repositories {
 }
 
 dependencies {
-    api 'com.zeroc:ice:3.7.10'
+    api 'com.zeroc:ice:3.7.9'
 }
 
-slice {
-    iceHome = file('C:/Program Files/ZeroC/Ice-3.7.10')
+def configuredIceHome = findProperty('iceHome') ?: System.getenv('ICE_HOME')
+if (configuredIceHome) {
+    def iceHomeDir = file(configuredIceHome)
+    if (iceHomeDir.name.equalsIgnoreCase('bin')) {
+        iceHomeDir = iceHomeDir.parentFile
+    }
+
+    slice {
+        iceHome = iceHomeDir
+    }
 }
 
 // El plugin busca automáticamente en src/main/slice
